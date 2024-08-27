@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenhouse Control System</title>
+    <link rel="stylesheet" href="greenhouse-automation-style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Greenhouse Control System</h1>
+        <div class="dashboard">
+            <div class="card">
+                <h2>Date</h2>
+                <div id="date" class="value">2024-08-27</div>
+            </div>
+            <div class="card">
+                <h2>Time</h2>
+                <div id="time" class="value">14:30</div>
+            </div>
+            <div class="card">
+                <h2>Temperature</h2>
+                <div id="temperature" class="value">25.5°C</div>
+            </div>
+            <div class="card">
+                <h2>Humidity</h2>
+                <div id="humidity" class="value">60%</div>
+            </div>
+            <div class="card">
+                <h2>Soil Moisture</h2>
+                <div id="soil-moisture" class="value">75%</div>
+            </div>
+            <div class="card">
+                <h2>Light Level</h2>
+                <div id="light-level" class="value">5000 lux</div>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="heater-toggle" class="control-btn off">Heater: OFF</button>
+            <button id="fan-toggle" class="control-btn off">Fan: OFF</button>
+            <button id="irrigation-toggle" class="control-btn off">Irrigation: OFF</button>
+            <button id="grow-lights-toggle" class="control-btn off">Grow Lights: OFF</button>
+        </div>
+        <div class="automation-control">
+            <button id="start-automation-toggle" class="auto-btn off">Start Automation</button>
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
