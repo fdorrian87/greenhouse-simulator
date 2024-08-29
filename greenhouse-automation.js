@@ -5,72 +5,79 @@ let temperature = 0.00;
 let humidity = 0.00;
 let soilMoisture = 0.00;
 let lightLevel = 0.00;
+let automationInterval;
+let plantStress = 0;
 
 let currentDate = new Date();
 currentDate.setHours(0, 0, 0, 0); //sets time to midnight of current date
 
-let currentTime = ;
+//let currentTime = ; not sure if needed yet 29/8/2024
 
 //initialise actuator variables
 let growLights = true;
-let window = false;
+let windowState = false;
 let fan = false;
 let irrigation = false;
 let heater = false;
 
 function growLightsToggle() {
-    //logic to toggle the growlights on/off - event listener to be included later
-    if (growLights === false) {
-        growLights = true;
-    } else if (growLights === true) {
-        growLights = false;
-    } else {
-        growLights = false;        
-    }
+    //logic to toggle the growlights on/off
+    growLights = !growLights; //flips the boolean state of grow lights
+    window.alert(`Grow Lights: ${growLights ? "ON" : "OFF"}`);
+
+    //button appearance change logic
+    const button = document.getElementById("grow-lights-toggle");
+    button.classList.toggle("on", growLights);
+    button.classList.toggle("off", !growLights);
+    button.textContent = `Grow Lights: ${growLights ? "ON" : "OFF"}`;
 }
 
 function windowToggle() {
     //logic to toggle the window open/closed - event listener to be included later
-    if (window === false) {
-        window = true;
-    } else if (window === true) {
-        window = false;
-    } else {
-        window = false;        
-    }
+    windowState = !windowState; //flips the boolean state of the window
+    window.alert(`Window: ${windowState ? "OPEN" : "CLOSED"}`);
+
+    //button appearance change logic
+    const button = document.getElementById("window-toggle");
+    button.classList.toggle("on", windowState);
+    button.classList.toggle("off", !windowState);
+    button.textContent = `Window: ${windowState ? "OPEN" : "CLOSED"}`;
 }
 
 function fanToggle() {
     //logic to toggle the fan on/off - event listener to be included later
-    if (fan === false) {
-        fan = true;
-    } else if (fan === true) {
-        fan = false;
-    } else {
-        fan = false;        
-    }
+    fan = !fan; //flips the boolean state of the fan
+    window.alert(`Fan: ${fan ? "ON" : "OFF"}`);
+
+    //button appearance change logic
+    const button = document.getElementById("fan-toggle");
+    button.classList.toggle("on", fan);
+    button.classList.toggle("off", !fan);
+    button.textContent = `Fan: ${fan ? "ON" : "OFF"}`;
 }
 
 function irrigationToggle() {
     //logic to toggle the irrigation on/off - event listener to be included later
-    if (irrigation === false) {
-        irrigation = true;
-    } else if (irrigation === true) {
-        irrigation = false;
-    } else {
-        irrigation = false;        
-    }
+    irrigation = !irrigation; //flips the boolean state of the irrigation
+    window.alert(`Irrigation: ${irrigation ? "ON" : "OFF"}`);
+
+    //button appearance change logic
+    const button = document.getElementById("irrigation-toggle");
+    button.classList.toggle("on", irrigation);
+    button.classList.toggle("off", !irrigation);
+    button.textContent = `Fan: ${irrigation ? "ON" : "OFF"}`;
 }
 
 function heaterToggle() {
     //logic to toggle the heater on/off - event listener to be included later
-    if (heater === false) {
-        heater = true;
-    } else if (heater === true) {
-        heater = false;
-    } else {
-        heater = false;        
-    }
+    heater = !heater; //flips the boolean state of the heater
+    window.alert(`Heater: ${heater ? "ON" : "OFF"}`);
+
+    //button appearance change logic
+    const button = document.getElementById("heater-toggle");
+    button.classList.toggle("on", heater);
+    button.classList.toggle("off", !heater);
+    button.textContent = `Heater: ${heater ? "ON" : "OFF"}`;
 }
 
 function updateSensors() {
@@ -79,17 +86,37 @@ function updateSensors() {
     humidity = Math.random() * (80 - 40) + 40;
     soilMoisture = Math.random() * (100 - 20) + 20;
     lightLevel = Math.random() * 10000;
+
+    if (heater === true) {
+        temperature = temperature + 5;
+    } else if (heater === false) {
+        temperature = temperature - 5;
+    }
+
+    if (fan === true) {
+        temperature = temperature - 3;
+    } else if (fan === false) {
+        temperature = temperature + 3;
+    }
+    
+    if (windowState === true) {
+        temperature = temperature - 2;
+        humidity = humidity - 20;
+    } else if (windowState === false) {
+        temperature = temperature + 2;
+        humidity = humidity + 20;
+    }
 }
 
 function autoEnviroControl() {
     //logic for automatic environmental controls
     if (temperature > 25.00) {
         fan = true;
-        window = true;
+        windowState = true;
         heater = false;
     } else if (temperature < 18.00) {
         fan = false;
-        window = false;
+        windowState = false;
         heater = true;
     }
 
@@ -106,11 +133,20 @@ function autoEnviroControl() {
     }
 
     if (humidity > 60.00) {
-        window = true;
+        windowState = true;
     } else {
-        window = false;
+        windowState = false;
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    //event listeners for buttons to trigger toggles
+    document.getElementById("grow-lights-toggle").addEventListener("click", growLightsToggle);
+    document.getElementById("heater-toggle").addEventListener("click", heaterToggle);
+    document.getElementById("window-toggle").addEventListener("click", windowToggle);
+    document.getElementById("fan-toggle").addEventListener("click", fanToggle);
+    document.getElementById("irrigation-toggle").addEventListener("click", irrigationToggle);
+});
 
 function alertLogic() {
     if (temperature > 25.00) {
@@ -124,7 +160,7 @@ function alertLogic() {
     if (humidity > 60.00) window.alert("WARNING: Humidity Levels Excessive!")
 }
 
-function gupdatePlantGrowth() {
+function updatePlantGrowth() {
     let growthIncrement = 0;
 
     if (temperature >= 18.00 && temperature <= 30.00) growthIncrement += 0.1;
@@ -133,4 +169,8 @@ function gupdatePlantGrowth() {
     if (lightLevel >= 2000 && lightLevel <= 6000) growthIncrement +=0.1;
 
     plantGrowth = Math.min(plantGrowth + growthIncrement, 100);
+
+    if (plantGrowth === 100) {
+        window.alert("Crops ready for harvest")
+    }
 }
