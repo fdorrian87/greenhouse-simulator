@@ -5,7 +5,6 @@ let temperature = 0.00;
 let humidity = 0.00;
 let soilMoisture = 0.00;
 let lightLevel = 0.00;
-let automationInterval;
 let plantStress = 0;
 
 let currentDate = new Date();
@@ -19,6 +18,14 @@ let windowState = false;
 let fan = false;
 let irrigation = false;
 let heater = false;
+let automationStatus = false;
+let automationInterval;
+
+function automationToggle() {
+    //logic to start the greenhouse automation, or turn it off
+    automationStatus = !automationStatus; //flips the boolean status of the automation
+    window.alert(`Automation: ${automationStatus ? "ON" : "OFF"}`);
+}
 
 function growLightsToggle() {
     //logic to toggle the growlights on/off
@@ -139,13 +146,38 @@ function autoEnviroControl() {
     }
 }
 
+function runAutomationCycle() {
+    updateSensors();
+    autoEnviroControl();
+    alertLogic();
+    updateDisplay();
+}
+
+function updateDisplay() {
+    const now = new Date() //these lines of code update the date and time
+    document.getElementById("date").textContent = now.toLocaleDateString();
+    document.getElementById("time").textContent = now.toLocaleTimeString();
+
+    //these lines of code update the sensor values
+    document.getElementById("temperature").textContent = `${temperature.toFixed(1)}°C`;
+    document.getElementById("humidity").textContent = `${humidity.toFixed(1)}%`;
+    document.getElementById("soil-moisture").textContent = `${soilMoisture.toFixed(1)}%`;
+    document.getElementById("light-level").textContent = `${lightLevel.toFixed(1)} lux`;
+    document.getElementById("plant-growth").textContent = `${plantGrowth.toFixed(1)}%`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    //this is where we set the interval for the automation to run
+    updateDisplay(); //this is where the code initialises the display and inludes the values
+    automationInterval = setInterval(runAutomationCycle, 10000);
+    
     //event listeners for buttons to trigger toggles
     document.getElementById("grow-lights-toggle").addEventListener("click", growLightsToggle);
     document.getElementById("heater-toggle").addEventListener("click", heaterToggle);
     document.getElementById("window-toggle").addEventListener("click", windowToggle);
     document.getElementById("fan-toggle").addEventListener("click", fanToggle);
     document.getElementById("irrigation-toggle").addEventListener("click", irrigationToggle);
+    document.getElementById("automation-toggle").addEventListener("click", automationToggle);
 });
 
 function alertLogic() {
@@ -173,4 +205,8 @@ function updatePlantGrowth() {
     if (plantGrowth === 100) {
         window.alert("Crops ready for harvest")
     }
+}
+
+function stopAutomation() {
+    clearInterval(automationInterval);
 }
