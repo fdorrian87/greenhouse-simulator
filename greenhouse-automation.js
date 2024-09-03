@@ -10,11 +10,7 @@ let dayCount = 0;
 
 let activeAlerts = new Set();
 
-let currentDate = new Date();
 let hoursPassed = 0;
-currentDate.setHours(0, 0, 0, 0); //sets time to midnight of current date
-
-//let currentTime = ; not sure if needed yet 29/8/2024
 
 //initialise actuator variables
 let growLights = true;
@@ -57,7 +53,6 @@ function growLightsToggle() {
 
 function dayCountProgress() {
     hoursPassed++;
-    currentDate.setHours(currentDate.getHours() + 1);
     
     if (hoursPassed % 24 === 0) {
         dayCount++;
@@ -208,23 +203,6 @@ function autoEnviroControl() {
     updateEquipmentUI('heater-toggle', heater);
 }
 
-function updateEquipmentUI(id, state) {
-    const button = document.getElementById(id);
-    if (button) {
-        button.classList.toggle("on", state);
-        button.classList.toggle("off", !state);
-        const label = button.textContent.split(':')[0];
-        button.textContent = `${label}: ${state ? "ON" : "OFF"}`;
-        
-        // Special case for window
-        if (id === 'window-toggle') {
-            button.textContent = `${label}: ${state ? "OPEN" : "CLOSED"}`;
-        }
-    } else {
-        console.error(`Element with ID ${id} not found.`);
-    }
-}
-
 function runAutomationCycle() {
     console.log("Running automation cycle");
     dayCountProgress();
@@ -245,9 +223,6 @@ function runAutomationCycle() {
 
 function updateDisplay() {
     console.log("updating display")
-    const now = new Date() //these lines of code update the date and time
-    document.getElementById("date").textContent = now.toLocaleDateString();
-    document.getElementById("time").textContent = now.toLocaleTimeString();
 
     //these lines of code update the sensor values
     document.getElementById("temperature").textContent = `${temperature.toFixed(1)}°C`;
@@ -260,52 +235,49 @@ function updateDisplay() {
 
 document.addEventListener("DOMContentLoaded", () => {
     //this is where we set the interval for the automation to run
-    updateDisplay(); //this is where the code initialises the display and inludes the values
-    
-    //event listeners for buttons to trigger toggles
+    updateDisplay(); //this is where we first update the display
+    setInterval(dayCountProgress, 3600 * 1000); // 3600 * 1000 milliseconds = 1 hour
+    document.getElementById("automation-toggle").addEventListener("click", automationToggle);
     document.getElementById("grow-lights-toggle").addEventListener("click", growLightsToggle);
-    document.getElementById("heater-toggle").addEventListener("click", heaterToggle);
     document.getElementById("window-toggle").addEventListener("click", windowToggle);
     document.getElementById("fan-toggle").addEventListener("click", fanToggle);
     document.getElementById("irrigation-toggle").addEventListener("click", irrigationToggle);
-    document.getElementById("automation-toggle").addEventListener("click", automationToggle);
+    document.getElementById("heater-toggle").addEventListener("click", heaterToggle);
 });
 
-function checkAlerts() {
-    const alerts = [
-        { condition: () => temperature > 30, message: "Heat Levels Excessive!" },
-        { condition: () => temperature < 15, message: "Heat Levels Dangerously Low!" },
-        { condition: () => soilMoisture < 20, message: "Soil Moisture Critically Low!" },
-        { condition: () => lightLevel < 2000, message: "Light Levels Dangerously Low!" },
-        { condition: () => humidity > 65, message: "Humidity Levels Excessive!" }
-    ];
-
-    alerts.forEach(alert => {
-        if (alert.condition()) {
-            if (!activeAlerts.has(alert.message)) {
-                activeAlerts.add(alert.message);
-                displayAlert(alert.message);
-            }
-        } else {
-            activeAlerts.delete(alert.message);
-        }
-    });
-
-    updateAlertDisplay();
-}
-
 function displayAlert(message) {
+    console.log(`Displaying alert: ${message}`);
+
+    // Create an alert element
+    const alert = document.createElement('div');
+    alert.classList.add('alert');
+    alert.textContent = message;
+
+    // Add the alert element to the container
     const alertsContainer = document.getElementById('alerts-container');
-    const alertElement = document.createElement('div');
-    alertElement.textContent = message;
-    alertElement.classList.add('alert');
-    alertsContainer.appendChild(alertElement);
+    alertsContainer.appendChild(alert);
+
+    // Store alert message to avoid duplicates
+    activeAlerts.add(message);
+
+    // Remove the alert after 5 seconds
+    setTimeout(() => {
+        alertsContainer.removeChild(alert);
+        activeAlerts.delete(message);
+    }, 5000);
 }
 
 function updateAlertDisplay() {
+    console.log("Updating alert display");
+
+    // Check for and remove duplicate alerts
     const alertsContainer = document.getElementById('alerts-container');
-    alertsContainer.innerHTML = '';
-    activeAlerts.forEach(message => displayAlert(message));
+    const currentAlerts = alertsContainer.querySelectorAll('.alert');
+    currentAlerts.forEach(alert => {
+        if (!activeAlerts.has(alert.textContent)) {
+            alertsContainer.removeChild(alert);
+        }
+    });
 }
 
 function stopAutomation() {
